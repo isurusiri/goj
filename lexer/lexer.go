@@ -44,6 +44,8 @@ func LexString(inputString string) (string, string, error) {
 // (limitation) of number characters detected so far and the
 // rest of the string. Return nil and the inputString at it is
 // if there aren't any numbers in the inputString.
+// Params: inputString string - input string to check if contains
+//                              a json string
 // Returns: *int   - pointer to the number identified in the
 //                   inputString.
 //          string - unchecked part of the inputString.
@@ -69,4 +71,47 @@ func LexNumber(inputString string) (*int, string) {
 
 	parsedNumber, _ := strconv.Atoi(jsonNumber)
 	return &parsedNumber, rest
+}
+
+// LexBoolean Check if the inputString starts with a boolean
+// value 'true' or 'false' by checking the string length and
+// by a simple string matching. If the inputString starts with
+// a boolean value, returns the boolean value and rest of the
+// inputString.
+// Params: inputString string - input string to check if contains
+//                              a json string
+// Returns: *bool  - pointer to the boolean value identified
+//                   in the inputString.
+//          string - unchecked part of the inputString.
+func LexBoolean(inputString string) (*bool, string) {
+	stringLength := len(inputString)
+	boolValue := false
+
+	if (stringLength >= constants.TrueLen) && inputString[:constants.TrueLen] == "true" {
+		boolValue = true
+		return &boolValue, inputString[constants.TrueLen:]
+	} else if (stringLength >= constants.FalseLen) && inputString[:constants.FalseLen] == "false" {
+		return &boolValue, inputString[constants.FalseLen:]
+	}
+
+	return nil, inputString
+}
+
+// LexNull Check if the inputString starts with null as it's
+// value by checking the string length and by a simple string
+// matching. If the inputString starts with null, returns true
+// with the rest of the inputString, otherwise returns false
+// and the inputString without a change.
+// Params: inputString string - input string to check if contains
+//                              a json string
+// Returns: bool   - True if the inputString starts with null.
+//          string - unchecked part of the inputString.
+func LexNull(inputString string) (bool, string) {
+	stringLength := len(inputString)
+
+	if (stringLength >= constants.NullLen) && inputString[:constants.NullLen] == "null" {
+		return true, inputString[constants.NullLen:]
+	}
+
+	return false, inputString
 }
