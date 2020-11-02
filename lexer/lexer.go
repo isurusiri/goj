@@ -115,3 +115,8 @@ func LexNull(inputString string) (bool, string) {
 
 	return false, inputString
 }
+
+// Lex performs the lexical analysis.
+func Lex(inputString string) {
+
+}
