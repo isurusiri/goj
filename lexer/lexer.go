@@ -2,9 +2,11 @@ package lexer
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 
 	"github.com/isurusiri/goj/constants"
+	"github.com/isurusiri/goj/utils"
 )
 
 // LexString First it checks if the string starts with a quote,
@@ -116,7 +118,61 @@ func LexNull(inputString string) (bool, string) {
 	return false, inputString
 }
 
-// Lex performs the lexical analysis.
-func Lex(inputString string) {
+// Lex performs the lexical analysis of the inputString that
+// represents the JSON object.
+// Params: inputString string - input string to perform lexical
+//                              analysis.
+// Returns: map[int]interface{} - a map representing the parsed
+//                                json object that contains all
+//                                elements and their position.
+//          error               - not null if there is an error
+//                                occurred during the process.
+func Lex(inputString string) (map[int]interface{}, error) {
+	tokens := make(map[int]interface{})
 
+	for i := 0; i >= 0; i++ {
+
+		jsonString, inputString, _ := LexString(inputString)
+		if jsonString != "" {
+			tokens[i] = jsonString
+			continue
+		}
+
+		jsonNumber, inputString := LexNumber(inputString)
+		if jsonNumber != nil {
+			tokens[i] = &jsonNumber
+			continue
+		}
+
+		jsonBool, inputString := LexBoolean(inputString)
+		if jsonBool != nil {
+			tokens[i] = &jsonBool
+			continue
+		}
+
+		isJSONNull, inputString := LexNull(inputString)
+		if isJSONNull {
+			tokens[i] = nil // should this be "Null" ?
+			continue
+		}
+
+		if len(inputString) <= 0 {
+			break
+		}
+
+		char := inputString[0]
+
+		if utils.IsWhitesapce(char) {
+			// ignore whitespace
+			inputString = inputString[1:]
+		} else if utils.IsValidJSONSyntax(char) {
+			tokens[i] = char
+			inputString = inputString[1:]
+		} else {
+			return nil, fmt.Errorf("lexer: Expected character %v", char)
+		}
+
+	}
+
+	return tokens, nil
 }
